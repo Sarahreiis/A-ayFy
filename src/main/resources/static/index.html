@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AçaíFy - 100% Açaí Puro & Água Mineral Gelada</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            acai: {
+              50: '#faf5ff',
+              100: '#f3e8ff',
+              200: '#e9d5ff',
+              300: '#d8b4fe',
+              400: '#c084fc',
+              500: '#a855f7',
+              600: '#9333ea',
+              700: '#7e22ce',
+              800: '#581c87',
+              900: '#3b0764',
+              950: '#1c0236',
+              black: '#080210',
+              dark: '#110521',
+              card: '#1a0831',
+              cardHover: '#270d47',
+              border: '#3b176a',
+              subtext: '#c4b5fd',
+              gold: '#f59e0b',
+              water: '#06b6d4',
+              waterLight: '#a5f3fc'
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- React & Babel Standalone -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #080210; color: #ffffff; }
+    .hero-gradient { background: linear-gradient(135deg, #3b0764 0%, #110521 60%, #080210 100%); }
+    .water-gradient { background: linear-gradient(135deg, #083344 0%, #0c4a6e 50%, #080210 100%); }
+    .acai-glow { transition: all 0.3s ease; }
+    .acai-glow:hover { border-color: #c084fc; box-shadow: 0 10px 30px -10px rgba(168, 85, 247, 0.4); transform: translateY(-3px); }
+    .water-glow:hover { border-color: #38bdf8; box-shadow: 0 10px 30px -10px rgba(6, 182, 212, 0.4); transform: translateY(-3px); }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #110521; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #3b176a; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #a855f7; }
+  </style>
+</head>
+<body class="bg-acai-black text-white min-h-screen selection:bg-purple-500 selection:text-white custom-scrollbar">
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useMemo } = React;
+
+// --- ÍCONES SVG ---
+const Icons = {
+  Acai: ({ size = 24, className = "" }) => (
+    <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 8l1.5 12h9l1.5-12H6z"/>
+      <path d="M4 8h16"/>
+      <path d="M9 8V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/>
+      <circle cx="10" cy="12" r="1.2" fill="currentColor"/>
+      <circle cx="14" cy="13" r="1.2" fill="currentColor"/>
+      <circle cx="12" cy="16" r="1.5" fill="currentColor"/>
+    </svg>
+  ),
+  Water: ({ size = 24, className = "" }) => (
+    <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+    </svg>
+  ),
+  Coconut: ({ size = 24, className = "" }) => (
+    <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="9"/>
+      <path d="M12 7a5 5 0 0 1 5 5"/>
+      <circle cx="9" cy="10" r="1" fill="currentColor"/>
+      <circle cx="12" cy="13" r="1" fill="currentColor"/>
+      <circle cx="15" cy="10" r="1" fill="currentColor"/>
+    </svg>
+  ),
+  Star: ({ size = 18, filled = true, className = "" }) => (
+    <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill={filled ? "#f59e0b" : "none"} stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+    </svg>
+  ),
+  Home: ({ size = 20 }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg>
+  ),
+  Menu: ({ size = 20 }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  ),
+  Plus: ({ size = 18 }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
+  ),
+  Search: ({ size = 18 }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+  ),
+  Edit: ({ size = 16 }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 5 4 4M4 20l4-.8L20 7a2.8 2.8 0 0 0-4-4L4 15z"/></svg>
+  ),
+  Trash: ({ size = 16 }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M8 6V4h8v2m3 0-1 14H6L5 6m4 4v6m6-6v6"/></svg>
+  ),
+  ThumbsUp: ({ size = 16, className="" }) => (
+    <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+  ),
+  Sparkles: ({ size = 18 }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3z"/></svg>
+  ),
+  Check: ({ size = 16 }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+  ),
+  X: ({ size = 20 }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+  )
+};
+
+// --- IMAGENS DE ALTA QUALIDADE ---
+const IMAGES = {
+  acai300: "https://images.unsplash.com/photo-1590301157890-4810ed352733?auto=format&fit=crop&w=800&q=80",
+  acai500: "https://images.unsplash.com/photo-1570197788417-0e82375c9371?auto=format&fit=crop&w=800&q=80",
+  acai700: "https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?auto=format&fit=crop&w=800&q=80",
+  acai1L: "https://images.unsplash.com/photo-1553530666-ba11a7da3888?auto=format&fit=crop&w=800&q=80",
+  acaiTigela: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+  acaiLeiteCondensado: "https://images.unsplash.com/photo-1590301157890-4810ed352733?auto=format&fit=crop&w=800&q=80",
+  aguaSemGas: "https://images.unsplash.com/photo-1560023907-5f339617ea30?auto=format&fit=crop&w=800&q=80",
+  aguaComGas: "https://images.unsplash.com/photo-1548839140-29a749e1bc4e?auto=format&fit=crop&w=800&q=80",
+  aguaCoco: "https://images.unsplash.com/photo-1525385133512-2f3bdd039054?auto=format&fit=crop&w=800&q=80"
+};
+
+// --- AVATARES PARA AVALIAÇÕES ---
+const AVATARS = [
+  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80",
+  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80",
+  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80"
+];
+
+// --- CARDÁPIO ESTRITO: APENAS AÇAÍ E ÁGUA ---
+const MENU_STRICT = [
+  {
+    id: 'm1',
+    nome: 'Açaí Puro Copo 300ml',
+    categoria: 'ACAI',
+    preco: 14.00,
+    descricao: 'Açaí 100% puro e cremoso em copo de 300ml.',
+    badge: 'Mais Pedido',
+    foto: IMAGES.acai300
+  },
+  {
+    id: 'm2',
+    nome: 'Açaí Puro Copo 500ml',
+    categoria: 'ACAI',
+    preco: 18.00,
+    descricao: 'Açaí puro concentrado, super cremoso em copo de 500ml.',
+    badge: 'Recomendado',
+    foto: IMAGES.acai500
+  },
+  {
+    id: 'm3',
+    nome: 'Açaí Puro Copo 700ml',
+    categoria: 'ACAI',
+    preco: 24.00,
+    descricao: 'Para quem ama açaí de verdade! Copo reforçado de 700ml.',
+    badge: 'Super Tamanho',
+    foto: IMAGES.acai700
+  },
+  {
+    id: 'm4',
+    nome: 'Açaí Puro Copo 1 Litro',
+    categoria: 'ACAI',
+    preco: 32.00,
+    descricao: 'Açaí puro para compartilhar ou para os verdadeiros apaixonados por açaí.',
+    badge: 'Família',
+    foto: IMAGES.acai1L
+  },
+  {
+    id: 'm5',
+    nome: 'Tigela Açaí Raiz 600ml',
+    categoria: 'ACAI',
+    preco: 22.00,
+    descricao: 'Servido na tigela gelada tradicional. Textura impecável.',
+    badge: 'Tradicional',
+    foto: IMAGES.acaiTigela
+  },
+  {
+    id: 'm6',
+    nome: 'Açaí Puro com Leite Condensado',
+    categoria: 'ACAI',
+    preco: 20.00,
+    descricao: 'Açaí puro servido com generosa cobertura de leite condensado.',
+    badge: 'Especial',
+    foto: IMAGES.acaiLeiteCondensado
+  },
+  {
+    id: 'm7',
+    nome: 'Água Mineral Sem Gás 500ml',
+    categoria: 'AGUA',
+    preco: 4.50,
+    descricao: 'Água mineral cristalina e bem gelada.',
+    badge: 'Refrescante',
+    foto: IMAGES.aguaSemGas
+  },
+  {
+    id: 'm8',
+    nome: 'Água Mineral Com Gás 500ml',
+    categoria: 'AGUA',
+    preco: 5.00,
+    descricao: 'Água mineral levemente gaseificada e trincando.',
+    badge: 'Geladinha',
+    foto: IMAGES.aguaComGas
+  }
+];
+
+// --- DADOS INICIAIS DE PEDIDOS ---
+const INITIAL_PEDIDOS = [
+  {
+    id: '101',
+    cliente: 'Lucas Silveira',
+    categoria: 'ACAI',
+    item: 'Açaí Puro Copo 500ml',
+    quantidade: 2,
+    preco: 36.00,
+    pago: true,
+    status: 'EM_PREPARO',
+    observacoes: 'Enviar bem gelado!',
+    foto: IMAGES.acai500
+  },
+  {
+    id: '102',
+    cliente: 'Juliana Paes',
+    categoria: 'AGUA',
+    item: 'Água de Coco Natural 500ml',
+    quantidade: 1,
+    preco: 8.00,
+    pago: true,
+    status: 'PRONTO',
+    observacoes: 'No ponto de beber',
+    foto: IMAGES.aguaCoco
+  },
+  {
+    id: '103',
+    cliente: 'Marcos Vinícius',
+    categoria: 'ACAI',
+    item: 'Tigela Açaí Raiz 600ml',
+    quantidade: 1,
+    preco: 22.00,
+    pago: false,
+    status: 'PENDENTE',
+    observacoes: 'Açaí puro com leite condensado',
+    foto: IMAGES.acaiLeiteCondensado
+  }
+];
+
+// --- DADOS INICIAIS DE AVALIAÇÕES ---
+const INITIAL_AVALIACOES = [
+  {
+    id: 'rev-1',
+    nome: 'Marcelo Castro',
+    avatar: AVATARS[0],
+    estrelas: 5,
+    data: 'Hoje',
+    item: 'Açaí Puro Copo 700ml',
+    comentario: 'Finalmente uma açaiteria que respeita o açaí raiz! Sem xarope em excesso, super cremoso e concentrado.',
+    curtidas: 32,
+    verificado: true
+  },
+  {
+    id: 'rev-2',
+    nome: 'Renata Vasconcelos',
+    avatar: AVATARS[2],
+    estrelas: 5,
+    data: 'Ontem',
+    item: 'Tigela Açaí Raiz + Água de Coco',
+    comentario: 'A combinação do açaí puro com a água de coco bem gelada depois do meu treino foi sensacional!',
+    curtidas: 19,
+    verificado: true
+  },
+  {
+    id: 'rev-3',
+    nome: 'Marcos Vinícius',
+    avatar: AVATARS[1],
+    estrelas: 5,
+    data: 'Há 2 dias',
+    item: 'Açaí Puro com Leite Condensado',
+    foto: IMAGES.acaiLeiteCondensado,
+    comentario: 'O açaí puro com leite condensado é impecável! Cremosidade no ponto certo e muito gostoso. Recomendo demais!',
+    curtidas: 28,
+    verificado: true
+  }
+];
+
+const EMPTY_FORM = {
+  cliente: '',
+  categoria: 'ACAI',
+  item: 'Açaí Puro Copo 500ml',
+  quantidade: 1,
+  preco: 18.00,
+  pago: false,
+  status: 'PENDENTE',
+  observacoes: '',
+  foto: IMAGES.acai500
+};
+
+function App() {
+  const [tela, setTela] = useState('pedidos'); // 'pedidos' | 'cardapio' | 'avaliacoes'
+  const [apiUrl, setApiUrl] = useState('http://localhost:8080/api/pedidos');
+  const [urlEdit, setUrlEdit] = useState(apiUrl);
+  const [showConfig, setShowConfig] = useState(false);
+  const [statusApi, setStatusApi] = useState('carregando');
+  const [erroDetalhe, setErroDetalhe] = useState('');
+  
+  // Estados principais
+  const [pedidos, setPedidos] = useState(INITIAL_PEDIDOS);
+  const [avaliacoes, setAvaliacoes] = useState(INITIAL_AVALIACOES);
+  
+  // Filtros
+  const [buscaPedido, setBuscaPedido] = useState('');
+  const [filtroStatus, setFiltroStatus] = useState('TODOS');
+  const [filtroCategoria, setFiltroCategoria] = useState('TODOS');
+  
+  // Modais e formulários
+  const [modalPedido, setModalPedido] = useState(false);
+  const [editandoId, setEditandoId] = useState(null);
+  const [formPedido, setFormPedido] = useState(EMPTY_FORM);
+  const [deletandoId, setDeletandoId] = useState(null);
+  
+  const [modalAvaliacao, setModalAvaliacao] = useState(false);
+  const [formAvaliacao, setFormAvaliacao] = useState({
+    nome: '',
+    estrelas: 5,
+    item: 'Açaí Puro Copo 500ml',
+    comentario: ''
+  });
+  const [hoverEstrelas, setHoverEstrelas] = useState(0);
+
+  // Toast
+  const [toast, setToast] = useState(null);
+  const avisar = (mensagem, tipo = 'sucesso') => {
+    setToast({ mensagem, tipo });
+    setTimeout(() => setToast(null), 3800);
+  };
+
+  // REST API Integrada
+  const requestApi = async (path = '', options = {}) => {
+    const res = await fetch(`${apiUrl.replace(/\/$/, '')}${path}`, options);
+    if (!res.ok) throw new Error(`HTTP Status ${res.status}`);
+    if (res.status === 204) return null;
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
+  };
+
+  const carregarPedidos = async () => {
+    setStatusApi('carregando');
+    try {
+      const dados = await requestApi();
+      if (dados && Array.isArray(dados)) {
+        setPedidos(dados);
+        setStatusApi('conectado');
+      } else {
+        setStatusApi('offline');
+      }
+    } catch (e) {
+      setStatusApi('erro');
+      setErroDetalhe(e.message || 'Servidor offline. Usando gestão local de pedidos.');
+    }
+  };
+
+  useEffect(() => {
+    carregarPedidos();
+  }, [apiUrl]);
+
+  // Salvar Pedido
+  const salvarPedido = async (e) => {
+    e.preventDefault();
+    const qtd = Number(formPedido.quantidade) || 1;
+    const precoUnitario = MENU_STRICT.find(m => m.nome === formPedido.item)?.preco || formPedido.preco;
+    const precoTotal = precoUnitario * qtd;
+
+    const dados = {
+      ...formPedido,
+      quantidade: qtd,
+      preco: precoTotal
+    };
+
+    try {
+      if (statusApi === 'conectado') {
+        if (editandoId !== null) {
+          await requestApi(`/${editandoId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dados) });
+        } else {
+          await requestApi('', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dados) });
+        }
+        await carregarPedidos();
+      } else {
+        if (editandoId !== null) {
+          setPedidos(prev => prev.map(p => p.id === editandoId ? { ...dados, id: editandoId } : p));
+        } else {
+          const novoId = String(Date.now()).slice(-4);
+          setPedidos(prev => [{ ...dados, id: novoId }, ...prev]);
+        }
+      }
+
+      avisar(editandoId !== null ? 'Pedido atualizado!' : 'Pedido de açaí/água registrado!');
+      setModalPedido(false);
+      setFormPedido(EMPTY_FORM);
+      setEditandoId(null);
+    } catch (err) {
+      avisar(`Erro ao salvar: ${err.message}`, 'erro');
+    }
+  };
+
+  // Preencher Form ao trocar item
+  const handleItemChange = (nomeItem) => {
+    const itemSel = MENU_STRICT.find(m => m.nome === nomeItem);
+    if (itemSel) {
+      setFormPedido(prev => ({
+        ...prev,
+        item: itemSel.nome,
+        categoria: itemSel.categoria,
+        preco: itemSel.preco,
+        foto: itemSel.foto
+      }));
+    }
+  };
+
+  const editarPedido = (p) => {
+    setFormPedido({
+      cliente: p.cliente || '',
+      categoria: p.categoria || 'ACAI',
+      item: p.item || 'Açaí Puro Copo 500ml',
+      quantidade: p.quantidade || 1,
+      preco: p.preco || 18.00,
+      pago: !!p.pago,
+      status: p.status || 'PENDENTE',
+      observacoes: p.observacoes || '',
+      foto: p.foto || IMAGES.acai500
+    });
+    setEditandoId(p.id);
+    setModalPedido(true);
+  };
+
+  const avançarStatus = (id) => {
+    const proximos = { 'PENDENTE': 'EM_PREPARO', 'EM_PREPARO': 'PRONTO', 'PRONTO': 'ENTREGUE', 'ENTREGUE': 'PENDENTE' };
+    setPedidos(prev => prev.map(p => {
+      if (p.id === id) {
+        const nxt = proximos[p.status] || 'PENDENTE';
+        avisar(`Status do pedido #${id} -> ${nxt.replace('_', ' ')}`);
+        return { ...p, status: nxt };
+      }
+      return p;
+    }));
+  };
+
+  const excluirPedido = async (id) => {
+    try {
+      if (statusApi === 'conectado') {
+        await requestApi(`/${id}`, { method: 'DELETE' });
+      }
+      setPedidos(prev => prev.filter(p => p.id !== id));
+      avisar('Pedido removido!');
+      setDeletandoId(null);
+    } catch (err) {
+      avisar(`Erro ao deletar: ${err.message}`, 'erro');
+    }
+  };
+
+  // Pedir direto do Cardápio
+  const pedirDoCardapio = (prod) => {
+    setFormPedido({
+      cliente: '',
+      categoria: prod.categoria,
+      item: prod.nome,
+      quantidade: 1,
+      preco: prod.preco,
+      pago: false,
+      status: 'PENDENTE',
+      observacoes: '',
+      foto: prod.foto
+    });
+    setEditandoId(null);
+    setTela('pedidos');
+    setModalPedido(true);
+  };
+
+  // Salvar Avaliação
+  const publicarAvaliacao = (e) => {
+    e.preventDefault();
+    if (!formAvaliacao.nome.trim() || !formAvaliacao.comentario.trim()) {
+      avisar('Preencha seu nome e depoimento!', 'erro');
+      return;
+    }
+
+    const nova = {
+      id: `rev-${Date.now()}`,
+      nome: formAvaliacao.nome,
+      avatar: AVATARS[Math.floor(Math.random() * AVATARS.length)],
+      estrelas: Number(formAvaliacao.estrelas),
+      data: 'Agora mesmo',
+      item: formAvaliacao.item,
+      comentario: formAvaliacao.comentario,
+      curtidas: 0,
+      verificado: true
+    };
+
+    setAvaliacoes(prev => [nova, ...prev]);
+    setModalAvaliacao(false);
+    setFormAvaliacao({ nome: '', estrelas: 5, item: 'Açaí Puro Copo 500ml', comentario: '' });
+    avisar('Sua avaliação foi enviada! Muito obrigado! 💜');
+  };
+
+  // Métricas
+  const totalAcais = useMemo(() => pedidos.filter(p => p.categoria === 'ACAI').reduce((acc, p) => acc + (p.quantidade || 1), 0), [pedidos]);
+  const totalAguas = useMemo(() => pedidos.filter(p => p.categoria === 'AGUA').reduce((acc, p) => acc + (p.quantidade || 1), 0), [pedidos]);
+  const faturamentoTotal = useMemo(() => pedidos.reduce((acc, p) => acc + (Number(p.preco) || 0), 0), [pedidos]);
+  const mediaEstrelas = useMemo(() => {
+    if (avaliacoes.length === 0) return 5.0;
+    return (avaliacoes.reduce((a, b) => a + b.estrelas, 0) / avaliacoes.length).toFixed(1);
+  }, [avaliacoes]);
+
+  // Lista Filtrada de Pedidos
+  const pedidosFiltrados = useMemo(() => {
+    return pedidos.filter(p => {
+      const termo = [p.cliente, p.item, p.observacoes].filter(Boolean).join(' ').toLowerCase();
+      const bateBusca = termo.includes(buscaPedido.toLowerCase());
+      const bateStatus = filtroStatus === 'TODOS' || p.status === filtroStatus;
+      const bateCategoria = filtroCategoria === 'TODOS' || p.categoria === filtroCategoria;
+      return bateBusca && bateStatus && bateCategoria;
+    });
+  }, [pedidos, buscaPedido, filtroStatus, filtroCategoria]);
+
+  return (
+    <div className="flex flex-col md:flex-row min-h-screen bg-acai-black text-white">
+      {/* Toast floating */}
+      {toast && (
+        <div className={`fixed top-5 right-5 z-[100] px-5 py-3.5 rounded-2xl text-xs font-bold shadow-2xl border backdrop-blur-md flex items-center gap-3 animate-bounce ${
+          toast.tipo === 'erro' ? 'bg-rose-950/90 text-rose-200 border-rose-500/40' : 'bg-purple-950/90 text-purple-200 border-purple-500/40 shadow-purple-900/40'
+        }`}>
+          <Icons.Sparkles className="text-acai-gold shrink-0"/>
+          <span>{toast.mensagem}</span>
+        </div>
+      )}
+
+      {/* Sidebar Lateral */}
+      <aside className="w-full md:w-64 bg-acai-dark p-5 flex flex-col justify-between border-r border-acai-border/60 shrink-0">
+        <div className="space-y-8">
+          {/* Brand Logo */}
+          <div className="flex items-center gap-3 px-2">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-purple-700 via-purple-600 to-amber-500 flex items-center justify-center text-white shadow-lg shadow-purple-900/50">
+              <Icons.Acai size={26} />
+            </div>
+            <div>
+              <span className="text-2xl font-black tracking-tight bg-gradient-to-r from-white via-purple-200 to-purple-400 bg-clip-text text-transparent">
+                Açaí<span className="text-purple-400">Fy</span>
+              </span>
+              <span className="block text-[9px] font-black tracking-widest text-acai-gold uppercase">100% Puro & Água</span>
+            </div>
+          </div>
+
+          {/* Menus de Navegação */}
+          <nav className="space-y-2">
+            <button
+              onClick={() => setTela('pedidos')}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-black transition-all ${
+                tela === 'pedidos' ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30 shadow-lg shadow-purple-950' : 'text-acai-subtext hover:bg-acai-card hover:text-white'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Icons.Home size={18} />
+                <span>Gestão de Pedidos</span>
+              </div>
+              <span className="bg-purple-900/80 text-purple-200 text-[10px] px-2 py-0.5 rounded-full font-mono">{pedidos.length}</span>
+            </button>
+
+            <button
+              onClick={() => setTela('cardapio')}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-black transition-all ${
+                tela === 'cardapio' ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30 shadow-lg shadow-purple-950' : 'text-acai-subtext hover:bg-acai-card hover:text-white'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Icons.Menu size={18} />
+                <span>Cardápio Exclusivo</span>
+              </div>
+              <span className="bg-acai-gold/20 text-acai-gold text-[9px] px-2 py-0.5 rounded-full font-extrabold">2 Itens</span>
+            </button>
+
+            <button
+              onClick={() => setTela('avaliacoes')}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-black transition-all ${
+                tela === 'avaliacoes' ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30 shadow-lg shadow-purple-950' : 'text-acai-subtext hover:bg-acai-card hover:text-white'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Icons.Star size={18} />
+                <span>Avaliações</span>
+              </div>
+              <span className="flex items-center gap-1 bg-amber-500/10 text-amber-300 text-[10px] px-2 py-0.5 rounded-full font-bold">
+                ★ {mediaEstrelas}
+              </span>
+            </button>
+          </nav>
+        </div>
+
+        {/* API Info */}
+        <div className="mt-8 bg-acai-card p-3.5 rounded-2xl border border-acai-border/80 text-xs space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-black uppercase tracking-wider text-acai-subtext">REST Backend API</span>
+            <span className={`w-2 h-2 rounded-full ${statusApi === 'conectado' ? 'bg-emerald-400 shadow-sm shadow-emerald-400' : 'bg-amber-400'}`} />
+          </div>
+          <p className="font-mono text-[10px] text-purple-300/80 truncate">{apiUrl}</p>
+          <button
+            onClick={() => { setUrlEdit(apiUrl); setShowConfig(true); }}
+            className="w-full text-center py-1.5 rounded-xl bg-purple-950/80 hover:bg-purple-900 text-purple-300 font-bold text-[10px] border border-purple-800/40 transition"
+          >
+            ⚙️ Alterar Endpoint
+          </button>
+        </div>
+      </aside>
+
+      {/* Conteúdo Principal */}
+      <main className="flex-1 min-w-0 flex flex-col">
+        {/* Header Superior */}
+        <header className="sticky top-0 z-20 bg-acai-black/90 backdrop-blur border-b border-acai-border/50 px-5 md:px-8 py-4 flex items-center justify-between">
+          <div>
+            <h1 className="text-lg md:text-xl font-black capitalize tracking-tight">
+              {tela === 'pedidos' && 'Comandas de Açaí Puro & Água'}
+              {tela === 'cardapio' && 'Cardápio Estrito: Açaí & Água'}
+              {tela === 'avaliacoes' && 'Avaliações de Quem Provou o Açaí Raiz'}
+            </h1>
+            <p className="text-xs text-acai-subtext hidden sm:block">AçaíFy · Apenas Açaí Puro e Água Mineral Gelada</p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {tela === 'pedidos' && (
+              <button
+                onClick={() => { setFormPedido(EMPTY_FORM); setEditandoId(null); setModalPedido(true); }}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white text-xs font-black shadow-lg shadow-purple-950 transition transform active:scale-95"
+              >
+                <Icons.Plus />
+                <span>Novo Pedido</span>
+              </button>
+            )}
+
+            {tela === 'avaliacoes' && (
+              <button
+                onClick={() => setModalAvaliacao(true)}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-amber-500 hover:bg-amber-400 text-black text-xs font-black shadow-lg shadow-amber-900/30 transition transform active:scale-95"
+              >
+                <Icons.Star size={16} filled={true} />
+                <span>Avaliar Açaiteria</span>
+              </button>
+            )}
+          </div>
+        </header>
+
+        {/* Corpo Principal por Abas */}
+        <div className="p-5 md:p-8 max-w-7xl mx-auto w-full flex-1">
+
+          {/* ================= SEÇÃO 1: PAINEL DE PEDIDOS ================= */}
+          {tela === 'pedidos' && (
+            <div className="space-y-7">
+              {/* Banner Hero */}
+              <section className="relative overflow-hidden rounded-3xl hero-gradient p-6 md:p-8 border border-purple-900/50 shadow-2xl">
+                <div className="relative z-10 max-w-2xl space-y-3">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-bold">
+                    <Icons.Sparkles size={14} className="text-acai-gold" />
+                    <span>Conceito 100% Raiz</span>
+                  </div>
+                  <h2 className="text-2xl md:text-4xl font-black leading-tight tracking-tight">
+                    100% Açaí Raiz e Água Gelada. <br/>
+                    <span className="text-purple-400">Sem enrolação, sem misturas.</span>
+                  </h2>
+                  <p className="text-xs md:text-sm text-acai-subtext leading-relaxed">
+                    Aqui só vendemos o que é essencial: Açaí puro do Pará ultra cremoso e água mineral trincando de gelada. Acompanhe e atualize suas comandas em tempo real.
+                  </p>
+                </div>
+              </section>
+
+              {/* Métricas Rápidas */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-acai-card border border-acai-border/80 rounded-2xl p-4 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center shrink-0">
+                    <Icons.Acai size={20} />
+                  </div>
+                  <div>
+                    <p className="text-acai-subtext text-[10px] font-black uppercase">Açaís Vendidos</p>
+                    <p className="text-2xl font-black text-white">{totalAcais}</p>
+                  </div>
+                </div>
+
+                <div className="bg-acai-card border border-acai-border/80 rounded-2xl p-4 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-cyan-600/20 text-cyan-400 flex items-center justify-center shrink-0">
+                    <Icons.Water size={20} />
+                  </div>
+                  <div>
+                    <p className="text-acai-subtext text-[10px] font-black uppercase">Águas / Cocos</p>
+                    <p className="text-2xl font-black text-cyan-300">{totalAguas}</p>
+                  </div>
+                </div>
+
+                <div className="bg-acai-card border border-acai-border/80 rounded-2xl p-4 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center shrink-0 font-bold text-lg">
+                    R$
+                  </div>
+                  <div>
+                    <p className="text-acai-subtext text-[10px] font-black uppercase">Faturamento</p>
+                    <p className="text-2xl font-black text-emerald-400">R$ {faturamentoTotal.toFixed(2)}</p>
+                  </div>
+                </div>
+
+                <div className="bg-acai-card border border-acai-border/80 rounded-2xl p-4 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+                    <Icons.Star size={20} filled={true} />
+                  </div>
+                  <div>
+                    <p className="text-acai-subtext text-[10px] font-black uppercase">Satisfação</p>
+                    <p className="text-2xl font-black text-amber-300">{mediaEstrelas} / 5.0</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Barra de Pesquisa e Filtros Duplos */}
+              <div className="flex flex-col md:flex-row gap-3 md:items-center justify-between">
+                <div className="relative flex-1 max-w-md">
+                  <Icons.Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-acai-subtext" />
+                  <input
+                    type="text"
+                    value={buscaPedido}
+                    onChange={e => setBuscaPedido(e.target.value)}
+                    placeholder="Buscar cliente ou produto..."
+                    className="w-full bg-acai-card border border-acai-border rounded-full pl-10 pr-4 py-2.5 text-xs text-white placeholder-acai-subtext/60 focus:outline-none focus:border-purple-400 transition"
+                  />
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  {/* Filtro Categoria */}
+                  <div className="flex bg-acai-dark p-1 rounded-full border border-acai-border/80 text-xs">
+                    <button
+                      onClick={() => setFiltroCategoria('TODOS')}
+                      className={`px-3 py-1.5 rounded-full font-bold transition ${filtroCategoria === 'TODOS' ? 'bg-purple-600 text-white' : 'text-acai-subtext'}`}
+                    >
+                      Todos
+                    </button>
+                    <button
+                      onClick={() => setFiltroCategoria('ACAI')}
+                      className={`px-3 py-1.5 rounded-full font-bold transition ${filtroCategoria === 'ACAI' ? 'bg-purple-600 text-white' : 'text-acai-subtext'}`}
+                    >
+                      🍇 Só Açaí
+                    </button>
+                    <button
+                      onClick={() => setFiltroCategoria('AGUA')}
+                      className={`px-3 py-1.5 rounded-full font-bold transition ${filtroCategoria === 'AGUA' ? 'bg-cyan-600 text-white' : 'text-acai-subtext'}`}
+                    >
+                      💧 Só Água
+                    </button>
+                  </div>
+
+                  {/* Filtro Status */}
+                  <select
+                    value={filtroStatus}
+                    onChange={e => setFiltroStatus(e.target.value)}
+                    className="bg-acai-dark border border-acai-border/80 rounded-full px-4 py-2 text-xs font-bold text-white focus:outline-none"
+                  >
+                    <option value="TODOS">Todos os Status</option>
+                    <option value="PENDENTE">Pendente</option>
+                    <option value="EM_PREPARO">Em Preparo</option>
+                    <option value="PRONTO">Pronto</option>
+                    <option value="ENTREGUE">Entregue</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Lista de Cards de Pedidos */}
+              {pedidosFiltrados.length === 0 ? (
+                <div className="bg-acai-card border border-acai-border/80 rounded-3xl p-12 text-center space-y-4">
+                  <div className="w-16 h-16 mx-auto rounded-full bg-purple-900/30 text-purple-300 flex items-center justify-center">
+                    <Icons.Acai size={36} />
+                  </div>
+                  <h3 className="font-black text-lg">Nenhum pedido encontrado</h3>
+                  <p className="text-xs text-acai-subtext max-w-sm mx-auto">
+                    Não existem comandas com os filtros selecionados. Crie um novo pedido de açaí ou água!
+                  </p>
+                  <button
+                    onClick={() => { setFormPedido(EMPTY_FORM); setEditandoId(null); setModalPedido(true); }}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-purple-600 text-white font-black text-xs hover:bg-purple-500 transition"
+                  >
+                    <Icons.Plus /> Registrar Pedido
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                  {pedidosFiltrados.map((p) => {
+                    const isAcai = p.categoria === 'ACAI';
+                    return (
+                      <article
+                        key={p.id}
+                        className={`bg-acai-card border rounded-3xl p-5 flex flex-col justify-between space-y-4 transition ${
+                          isAcai ? 'border-acai-border/80 acai-glow' : 'border-cyan-900/50 water-glow'
+                        }`}
+                      >
+                        <div className="space-y-3">
+                          {/* Header do Card */}
+                          <div className="flex gap-3">
+                            <img
+                              src={p.foto || (isAcai ? IMAGES.acai500 : IMAGES.aguaSemGas)}
+                              alt={p.cliente}
+                              className={`w-16 h-16 rounded-2xl object-cover shrink-0 border shadow-md ${
+                                isAcai ? 'border-purple-500/30' : 'border-cyan-500/30'
+                              }`}
+                            />
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center justify-between gap-1">
+                                <h3 className="font-extrabold text-sm truncate text-white">{p.cliente}</h3>
+                                <span className="text-[10px] font-mono text-purple-300 bg-purple-950/80 px-2 py-0.5 rounded-md border border-purple-800/40">#{p.id}</span>
+                              </div>
+                              <p className={`text-xs font-black mt-0.5 ${isAcai ? 'text-purple-300' : 'text-cyan-300'}`}>
+                                {p.quantidade}x {p.item}
+                              </p>
+                              <span className={`inline-block text-[9px] font-black px-2.5 py-0.5 rounded-full mt-1.5 ${
+                                p.status === 'ENTREGUE' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' :
+                                p.status === 'PRONTO' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' :
+                                p.status === 'EM_PREPARO' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' :
+                                'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                              }`}>
+                                ● {p.status.replace('_', ' ')}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Observações */}
+                          {p.observacoes && (
+                            <p className="text-[11px] text-acai-subtext/90 italic bg-purple-950/40 p-2.5 rounded-xl border border-purple-900/30">
+                              "{p.observacoes}"
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Footer do Card */}
+                        <div className="pt-3 border-t border-acai-border/60 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <span className="text-[10px] uppercase text-acai-subtext font-bold block">Valor Total</span>
+                              <span className="text-base font-black text-white">R$ {Number(p.preco || 0).toFixed(2)}</span>
+                            </div>
+                            <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${
+                              p.pago ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                            }`}>
+                              {p.pago ? '✓ Pago' : '⏳ Pendente'}
+                            </span>
+                          </div>
+
+                          <button
+                            onClick={() => avançarStatus(p.id)}
+                            className="w-full py-2 px-3 rounded-xl bg-purple-950 hover:bg-purple-900 text-purple-200 font-extrabold text-xs border border-purple-700/40 transition flex items-center justify-center gap-2"
+                          >
+                            <span>Avançar Estado</span>
+                            <Icons.Sparkles size={14} className="text-acai-gold" />
+                          </button>
+
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => editarPedido(p)}
+                              className="flex-1 py-1.5 rounded-lg border border-acai-border text-xs font-bold text-acai-subtext hover:text-white hover:bg-acai-dark transition flex items-center justify-center gap-1"
+                            >
+                              <Icons.Edit size={14} /> Editar
+                            </button>
+                            <button
+                              onClick={() => setDeletandoId(p.id)}
+                              className="flex-1 py-1.5 rounded-lg border border-rose-900/40 text-xs font-bold text-rose-400 hover:bg-rose-950/40 transition flex items-center justify-center gap-1"
+                            >
+                              <Icons.Trash size={14} /> Excluir
+                            </button>
+                          </div>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+
+          {/* ================= SEÇÃO 2: CARDÁPIO EXCLUSIVO ================= */}
+          {tela === 'cardapio' && (
+            <div className="space-y-8">
+              <div className="text-center max-w-2xl mx-auto space-y-2">
+                <span className="text-xs uppercase font-black text-acai-gold tracking-widest">Cardápio Estrito</span>
+                <h2 className="text-3xl font-black tracking-tight">Somente Açaí Puro e Água Mineral</h2>
+                <p className="text-xs text-acai-subtext">
+                  Eliminamos o excesso para focar na melhor qualidade possível do açaí amazônico e na água mineral mais pura.
+                </p>
+              </div>
+
+              {/* Seção Açaí */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 border-b border-purple-900/50 pb-2">
+                  <div className="w-8 h-8 rounded-xl bg-purple-600/30 text-purple-300 flex items-center justify-center">
+                    <Icons.Acai size={20} />
+                  </div>
+                  <h3 className="text-xl font-black text-purple-300">Opções de Açaí Puro</h3>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {MENU_STRICT.filter(m => m.categoria === 'ACAI').map((item) => (
+                    <article key={item.id} className="bg-acai-card border border-acai-border/80 rounded-3xl overflow-hidden acai-glow flex flex-col justify-between">
+                      <div>
+                        <div className="relative h-48 overflow-hidden">
+                          <img src={item.foto} alt={item.nome} className="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
+                          <span className="absolute top-3 right-3 bg-acai-black/80 backdrop-blur-md text-acai-gold text-[10px] font-black px-3 py-1 rounded-full border border-amber-500/30">
+                            {item.badge}
+                          </span>
+                        </div>
+
+                        <div className="p-5 space-y-2">
+                          <h4 className="font-black text-base text-white">{item.nome}</h4>
+                          <p className="text-xs text-acai-subtext leading-relaxed">{item.descricao}</p>
+                        </div>
+                      </div>
+
+                      <div className="p-5 pt-0 flex items-center justify-between border-t border-acai-border/40 mt-4">
+                        <div>
+                          <span className="text-[10px] uppercase text-acai-subtext block font-bold">Preço</span>
+                          <span className="text-xl font-black text-amber-400">R$ {item.preco.toFixed(2)}</span>
+                        </div>
+                        <button
+                          onClick={() => pedirDoCardapio(item)}
+                          className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-purple-600 hover:bg-purple-500 text-white text-xs font-black shadow-lg shadow-purple-950 transition active:scale-95"
+                        >
+                          <Icons.Plus /> Pedir Açaí
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </div>
+
+              {/* Seção Água */}
+              <div className="space-y-4 pt-6">
+                <div className="flex items-center gap-3 border-b border-cyan-900/50 pb-2">
+                  <div className="w-8 h-8 rounded-xl bg-cyan-600/30 text-cyan-300 flex items-center justify-center">
+                    <Icons.Water size={20} />
+                  </div>
+                  <h3 className="text-xl font-black text-cyan-300">Águas & Hidratação</h3>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {MENU_STRICT.filter(m => m.categoria === 'AGUA').map((item) => (
+                    <article key={item.id} className="bg-acai-card border border-cyan-900/40 rounded-3xl overflow-hidden water-glow flex flex-col justify-between">
+                      <div>
+                        <div className="relative h-48 overflow-hidden">
+                          <img src={item.foto} alt={item.nome} className="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
+                          <span className="absolute top-3 right-3 bg-acai-black/80 backdrop-blur-md text-cyan-300 text-[10px] font-black px-3 py-1 rounded-full border border-cyan-500/30">
+                            {item.badge}
+                          </span>
+                        </div>
+
+                        <div className="p-5 space-y-2">
+                          <h4 className="font-black text-base text-white">{item.nome}</h4>
+                          <p className="text-xs text-acai-subtext leading-relaxed">{item.descricao}</p>
+                        </div>
+                      </div>
+
+                      <div className="p-5 pt-0 flex items-center justify-between border-t border-acai-border/40 mt-4">
+                        <div>
+                          <span className="text-[10px] uppercase text-acai-subtext block font-bold">Preço</span>
+                          <span className="text-xl font-black text-cyan-300">R$ {item.preco.toFixed(2)}</span>
+                        </div>
+                        <button
+                          onClick={() => pedirDoCardapio(item)}
+                          className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-black shadow-lg shadow-cyan-950 transition active:scale-95"
+                        >
+                          <Icons.Plus /> Pedir Água
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+
+          {/* ================= SEÇÃO 3: AVALIAÇÕES ================= */}
+          {tela === 'avaliacoes' && (
+            <div className="space-y-8">
+              {/* Header Avaliações */}
+              <div className="bg-acai-card border border-acai-border/80 rounded-3xl p-6 md:p-8 grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+                <div className="md:col-span-5 text-center border-b md:border-b-0 md:border-r border-acai-border/60 pb-6 md:pb-0 md:pr-6 space-y-2">
+                  <span className="text-5xl font-black text-amber-400">{mediaEstrelas}</span>
+                  <div className="flex justify-center gap-1 my-1">
+                    {[1, 2, 3, 4, 5].map((st) => (
+                      <Icons.Star key={st} size={22} filled={st <= Math.round(mediaEstrelas)} />
+                    ))}
+                  </div>
+                  <p className="text-xs font-extrabold text-white">Açaiteria Aprovada por Quem Ama Açaí de Verdade</p>
+                </div>
+
+                <div className="md:col-span-7 space-y-3">
+                  <h3 className="font-black text-lg text-purple-300">Açaí Puro Sem Ilusões</h3>
+                  <p className="text-xs text-acai-subtext leading-relaxed">
+                    Nossos clientes escolhem o AçaíFy pela garantia de receber açaí denso, puro e sem aditivos baratos. Veja o que dizem!
+                  </p>
+                  <button
+                    onClick={() => setModalAvaliacao(true)}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-amber-500 hover:bg-amber-400 text-black font-black text-xs transition"
+                  >
+                    ✍️ Escrever Avaliação
+                  </button>
+                </div>
+              </div>
+
+              {/* Lista de Avaliações */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {avaliacoes.map((rev) => (
+                  <article key={rev.id} className="bg-acai-card border border-acai-border/80 rounded-3xl p-5 space-y-4 acai-glow flex flex-col justify-between">
+                    <div className="space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <img src={rev.avatar} alt={rev.nome} className="w-11 h-11 rounded-full object-cover border-2 border-purple-500/40" />
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <h4 className="font-extrabold text-sm text-white">{rev.nome}</h4>
+                              <span className="text-emerald-400 text-[9px] bg-emerald-950/60 border border-emerald-800/40 px-1.5 py-0.2 rounded-full font-bold">✓ Cliente Verificado</span>
+                            </div>
+                            <span className="text-[10px] text-acai-subtext">{rev.data}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-0.5">
+                          {[1, 2, 3, 4, 5].map((st) => (
+                            <Icons.Star key={st} size={14} filled={st <= rev.estrelas} />
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="bg-purple-950/40 p-2.5 rounded-xl border border-purple-900/30 text-[11px] font-extrabold text-purple-300">
+                        Item do Pedido: {rev.item}
+                      </div>
+
+                      {rev.foto && (
+                        <div className="overflow-hidden rounded-2xl border border-purple-500/30">
+                          <img src={rev.foto} alt={rev.item} className="w-full h-40 object-cover hover:scale-105 transition-transform duration-300" />
+                        </div>
+                      )}
+
+                      <p className="text-xs text-white/90 leading-relaxed font-normal">"{rev.comentario}"</p>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-3 border-t border-acai-border/50 text-xs">
+                      <button
+                        onClick={() => {
+                          setAvaliacoes(prev => prev.map(a => a.id === rev.id ? { ...a, curtidas: a.curtidas + 1 } : a));
+                          avisar('Obrigado pelo apoio!');
+                        }}
+                        className="flex items-center gap-1.5 text-acai-subtext hover:text-purple-300 transition"
+                      >
+                        <Icons.ThumbsUp size={14} />
+                        <span className="text-[11px] font-bold">Útil ({rev.curtidas})</span>
+                      </button>
+                      <span className="text-[10px] text-acai-subtext">AçaíFy 100% Puro</span>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+          )}
+
+        </div>
+      </main>
+
+
+      {/* ================= MODAL: NOVO / EDITAR PEDIDO ================= */}
+      {modalPedido && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-acai-card border border-acai-border rounded-3xl max-w-lg w-full p-6 md:p-8 space-y-6 shadow-2xl relative">
+            <div className="flex justify-between items-center border-b border-acai-border pb-4">
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-purple-400">Comanda Açaí & Água</span>
+                <h3 className="text-xl font-black text-white">{editandoId !== null ? 'Editar Pedido' : 'Registrar Novo Pedido'}</h3>
+              </div>
+              <button onClick={() => setModalPedido(false)} className="text-acai-subtext hover:text-white p-1">
+                <Icons.X size={22} />
+              </button>
+            </div>
+
+            <form onSubmit={salvarPedido} className="space-y-4">
+              <div>
+                <label className="block text-xs font-black uppercase text-acai-subtext mb-1">Nome do Cliente *</label>
+                <input
+                  required
+                  type="text"
+                  value={formPedido.cliente}
+                  onChange={e => setFormPedido({ ...formPedido, cliente: e.target.value })}
+                  placeholder="Ex.: Carolina Santos"
+                  className="w-full bg-acai-dark border border-acai-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-purple-400"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-black uppercase text-acai-subtext mb-1">Selecione o Item (Strictly Açaí ou Água) *</label>
+                <select
+                  value={formPedido.item}
+                  onChange={e => handleItemChange(e.target.value)}
+                  className="w-full bg-acai-dark border border-acai-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-purple-400 font-bold"
+                >
+                  <optgroup label="Açaí Puro">
+                    {MENU_STRICT.filter(m => m.categoria === 'ACAI').map(m => (
+                      <option key={m.id} value={m.nome}>{m.nome} — R$ {m.preco.toFixed(2)}</option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="Água & Hidratação">
+                    {MENU_STRICT.filter(m => m.categoria === 'AGUA').map(m => (
+                      <option key={m.id} value={m.nome}>{m.nome} — R$ {m.preco.toFixed(2)}</option>
+                    ))}
+                  </optgroup>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-black uppercase text-acai-subtext mb-1">Quantidade</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="50"
+                    value={formPedido.quantidade}
+                    onChange={e => setFormPedido({ ...formPedido, quantidade: e.target.value })}
+                    className="w-full bg-acai-dark border border-acai-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-purple-400"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-black uppercase text-acai-subtext mb-1">Estado do Pedido</label>
+                  <select
+                    value={formPedido.status}
+                    onChange={e => setFormPedido({ ...formPedido, status: e.target.value })}
+                    className="w-full bg-acai-dark border border-acai-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-purple-400"
+                  >
+                    <option value="PENDENTE">Pendente</option>
+                    <option value="EM_PREPARO">Em Preparo</option>
+                    <option value="PRONTO">Pronto</option>
+                    <option value="ENTREGUE">Entregue</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex items-center pt-2">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formPedido.pago}
+                    onChange={e => setFormPedido({ ...formPedido, pago: e.target.checked })}
+                    className="w-5 h-5 accent-purple-500 rounded"
+                  />
+                  <span className="text-xs font-bold text-white">Pedido Já Pago</span>
+                </label>
+              </div>
+
+              <div>
+                <label className="block text-xs font-black uppercase text-acai-subtext mb-1">Observações</label>
+                <textarea
+                  rows="2"
+                  value={formPedido.observacoes}
+                  onChange={e => setFormPedido({ ...formPedido, observacoes: e.target.value })}
+                  placeholder="Instruções de entrega ou retirada..."
+                  className="w-full bg-acai-dark border border-acai-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-purple-400"
+                ></textarea>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setModalPedido(false)}
+                  className="flex-1 py-3 rounded-full border border-acai-border font-bold text-xs hover:bg-acai-dark transition"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-3 rounded-full bg-gradient-to-r from-purple-600 to-purple-500 text-white font-black text-xs shadow-lg shadow-purple-950 transition"
+                >
+                  {editandoId !== null ? 'Salvar Alterações' : 'Confirmar Pedido'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+
+      {/* ================= MODAL: CRIAR AVALIAÇÃO ================= */}
+      {modalAvaliacao && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-acai-card border border-acai-border rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl relative">
+            <div className="flex justify-between items-center border-b border-acai-border pb-3">
+              <h3 className="text-lg font-black text-white">Avaliar o AçaíFy</h3>
+              <button onClick={() => setModalAvaliacao(false)} className="text-acai-subtext hover:text-white">✕</button>
+            </div>
+
+            <form onSubmit={publicarAvaliacao} className="space-y-4">
+              <div className="text-center space-y-2 py-3 bg-acai-dark rounded-2xl border border-purple-900/30">
+                <span className="text-xs font-black uppercase text-acai-subtext">Sua Nota</span>
+                <div className="flex justify-center gap-2">
+                  {[1, 2, 3, 4, 5].map((st) => (
+                    <button
+                      key={st}
+                      type="button"
+                      onClick={() => setFormAvaliacao({ ...formAvaliacao, estrelas: st })}
+                      onMouseEnter={() => setHoverEstrelas(st)}
+                      onMouseLeave={() => setHoverEstrelas(0)}
+                      className="p-1 transform transition hover:scale-125"
+                    >
+                      <Icons.Star size={30} filled={st <= (hoverEstrelas || formAvaliacao.estrelas)} />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-black uppercase text-acai-subtext mb-1">Seu Nome *</label>
+                <input
+                  required
+                  type="text"
+                  value={formAvaliacao.nome}
+                  onChange={e => setFormAvaliacao({ ...formAvaliacao, nome: e.target.value })}
+                  placeholder="Ex.: Gabriel Lima"
+                  className="w-full bg-acai-dark border border-acai-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-purple-400"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-black uppercase text-acai-subtext mb-1">O que você pediu?</label>
+                <select
+                  value={formAvaliacao.item}
+                  onChange={e => setFormAvaliacao({ ...formAvaliacao, item: e.target.value })}
+                  className="w-full bg-acai-dark border border-acai-border rounded-xl p-3 text-xs text-white focus:outline-none font-bold"
+                >
+                  {MENU_STRICT.map(m => (
+                    <option key={m.id} value={m.nome}>{m.nome}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-black uppercase text-acai-subtext mb-1">Seu Depoimento *</label>
+                <textarea
+                  required
+                  rows="3"
+                  value={formAvaliacao.comentario}
+                  onChange={e => setFormAvaliacao({ ...formAvaliacao, comentario: e.target.value })}
+                  placeholder="Conte o que achou da cremosidade do açaí e do atendimento..."
+                  className="w-full bg-acai-dark border border-acai-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-purple-400"
+                ></textarea>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setModalAvaliacao(false)}
+                  className="flex-1 py-2.5 rounded-full border border-acai-border font-bold text-xs"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 rounded-full bg-amber-500 text-black font-black text-xs hover:bg-amber-400"
+                >
+                  Publicar Avaliação
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+
+      {/* ================= MODAL: CONFIGURAÇÃO REST API ================= */}
+      {showConfig && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-acai-card border border-acai-border rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl">
+            <div className="flex justify-between items-center">
+              <h3 className="font-black text-base text-white">Configurar Backend REST API</h3>
+              <button onClick={() => setShowConfig(false)} className="text-acai-subtext hover:text-white">✕</button>
+            </div>
+            <p className="text-xs text-acai-subtext leading-relaxed">
+              Informe a rota base da sua API de pedidos (ex: Spring Boot / Node / FastAPI).
+            </p>
+            <div>
+              <label className="block text-[10px] font-black uppercase text-acai-subtext mb-1">URL Endpoint REST</label>
+              <input
+                type="text"
+                value={urlEdit}
+                onChange={e => setUrlEdit(e.target.value)}
+                placeholder="http://localhost:8080/api/pedidos"
+                className="w-full bg-acai-dark border border-acai-border rounded-xl p-3 text-xs text-white font-mono focus:outline-none focus:border-purple-400"
+              />
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowConfig(false)}
+                className="flex-1 py-2.5 rounded-full border border-acai-border text-xs font-bold"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  if (urlEdit.trim()) {
+                    setApiUrl(urlEdit.trim().replace(/\/$/, ''));
+                    setShowConfig(false);
+                    avisar('URL da API configurada com sucesso!');
+                  }
+                }}
+                className="flex-1 py-2.5 rounded-full bg-purple-600 hover:bg-purple-500 text-white font-black text-xs"
+              >
+                Salvar & Conectar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
+      {/* ================= MODAL: EXCLUIR PEDIDO ================= */}
+      {deletandoId !== null && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-acai-card border border-rose-900/50 rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
+            <div className="w-12 h-12 mx-auto rounded-full bg-rose-500/10 text-rose-400 flex items-center justify-center">
+              <Icons.Trash size={24} />
+            </div>
+            <h3 className="font-black text-lg text-white">Remover esta comanda?</h3>
+            <p className="text-xs text-acai-subtext">Esta operação enviará DELETE para seu backend e excluirá o registro.</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeletandoId(null)}
+                className="flex-1 py-2.5 rounded-full bg-acai-dark border border-acai-border text-xs font-bold"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => excluirPedido(deletandoId)}
+                className="flex-1 py-2.5 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-black text-xs"
+              >
+                Remover
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
